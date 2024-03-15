@@ -1,8 +1,3 @@
-//Arav Tulsi
-//Dr. Neslisah Torosdagli
-//COP3502C
-//Lab Assignment 8
-
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -36,92 +31,76 @@ size_t Size(void* ptr)
 // extraMemoryAllocated counts bytes of extra memory allocated
 void mergeSort(int pData[], int l, int r)
 {
-	if (l<r) 
+	if (l>=r)
+		return; 
+	
+	int mid = (l+r) / 2; //get mid
+
+	//recursive call
+	mergeSort(pData , l, mid); //first half
+	mergeSort(pData, mid+1, r); //second half
+
+	//SET-UP MERGE
+	//get tracker variables
+	int l_count, r_count, p_count; //left, right, mainArray
+	//get sizes of subarrays
+	int size_L = mid - l + 1;
+	int size_R = r-mid;
+
+	//make temp arrays
+	int *arr_L = Alloc(sizeof(int) * size_L);
+	int *arr_R = Alloc (sizeof(int) * size_R);
+
+	//copy data
+	for (l_count = 0; l_count < size_L; l_count++) //left
+		arr_L[l_count] = pData[l_count + l];		
+
+	for (r_count = 0; r_count < size_R; r_count++) //right
+		arr_R[r_count] = pData[mid+1+r_count	];
+
+	//EXECUTE MERGE
+	// reset pos tracker variables
+	l_count = 0; //left subarray tracker
+	r_count = 0; //right subarray tracker
+	p_count = l; //main array tracker
+
+	//itterate arrays and merge them
+	//set the pData[p_count] to the smaller of the values
+	while (l_count < size_L && r_count < size_R)
 	{
-		int mid = (l+r) / 2; //get mid
-
-		//recursive call
-		mergeSort(pData , l, mid); //first half
-		mergeSort(pData, mid+1, r); //second half
-
-		//SET-UP MERGE
-		//get tracker variables
-		int i, j, k; //left, right, mainArray
-		//get sizes of subarrays
-		int size_L = mid - l + 1;
-		int size_R = r-mid;
-
-		//make temp arrays
-		int *arr_L = Alloc(sizeof(int) * size_L);
-		int *arr_R = Alloc (sizeof(int) * size_R);
-
-		//copy data
-		for (i = 0; i < size_L; i++) //left
-			arr_L[i] = pData[i + l];		
-
-		for (j = 0; j < size_R; j++) //right
-			arr_R[j] = pData[mid+1+j	];
-
-		//MERGE
-		// reset pos tracker variables
-		i = 0; //left subarray tracker
-		j = 0; //right subarray tracker
-		k = 0; //main array tracker
-
-		//itterate arrays and merge them
-		//set the pData[k] to the smaller of the values
-		while (i < size_L && j < size_R)
+		//if in order
+		//set main array to left value
+		//itterate left tracker
+		if (arr_L[l_count] <= arr_R[r_count])
 		{
-			//if in order
-			//set main array to left value
-			//itterate left tracker
-			if (arr_L[i] <= arr_R[j])
-			{
-				pData[k] = arr_L[i];
-				i++;
-			}
-			//set main array to right value
-			//itterate right tracker
-			else //(arr_L[i] > arr_R[j]) only other case
-			{
-				pData[k] = arr_R[j];
-				j++;
-			}
-			k++;
+			pData[p_count] = arr_L[l_count];
+			l_count++;
 		}
-		//sorting done
-
-		//now handle any left over data, left then right
-		/*for (i; i < size_L; i++) //left tracker less than size of leftarray
+		//set main array to right value
+		//itterate right tracker
+		else //(arr_L[l_count] > arr_R[r_count]) only other case
 		{
-			pData[k] = arr_L[i];
-			k++;
+			pData[p_count] = arr_R[r_count];
+			r_count++;
 		}
-
-		for (j; j < size_R; j++) // right tracker less than size of right array
-		{
-			pData[k] = arr_R[j];
-			k++;
-		}*/
-
-		while (i < size_L)
-		{
-			pData[k] = arr_L[i];
-			i++;
-			k++;
-		}
-
-		while (j < size_R)
-		{
-			pData[k] = arr_R[j];
-			j++;
-			k++;
-		}
-
-		// laslty de-allocate temporary arrays
-		DeAlloc(arr_L);
-		DeAlloc(arr_R);
+		p_count++;
 	}
+	//sorting done
+
+	//now handle any left over data, left then right
+	for (l_count; l_count < size_L; l_count++,p_count++) //left tracker less than size of leftarray
+	{
+		pData[p_count] = arr_L[l_count];
+	}
+
+	for (r_count; r_count < size_R; r_count++,p_count++) // right tracker less than size of right array
+	{
+		pData[p_count] = arr_R[r_count];
+	}
+
+	// laslty de-allocate temporary arrays
+	DeAlloc(arr_L);
+	DeAlloc(arr_R);
 }
 
 // parses input file to an integer array
@@ -166,7 +145,7 @@ void printArray(int pData[], int dataSz)
         printf("%d ",pData[i]);
     }
     printf("\n\t");
-    
+
     for (i=sz;i<dataSz;++i)
     {
         printf("%d ",pData[i]);
@@ -181,7 +160,7 @@ int main(void)
     double cpu_time_used;
 	char* fileNames[] = { "input1.txt", "input2.txt", "input3.txt", "input4.txt" };
 	
-	for (i=0;i<2;++i)
+	for (i=0;i<3;++i)
 	{
 		int *pDataSrc, *pDataCopy;
 		int dataSz = parseData(fileNames[i], &pDataSrc);
