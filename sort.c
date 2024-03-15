@@ -36,87 +36,92 @@ size_t Size(void* ptr)
 // extraMemoryAllocated counts bytes of extra memory allocated
 void mergeSort(int pData[], int l, int r)
 {
-	//terminating condition
-	if (l>=r) //list already sorted
-		return;
-	// else operation valid
-
-	int midpoint = (l+r) / 2; //get midpoint
-
-	//recursive call
-	mergeSort(pData , l, midpoint); //first half
-	mergeSort(pData, midpoint+1, r); //second half
-
-	//SET-UP MERGE
-	//get tracker variables
-	int L_Tracker, R_Tracker, mainArray_Tracker; //left, right, mainArray
-	//get sizes of subarrays
-	int size_L = midpoint - l + 1;
-	int size_R = r-midpoint;
-
-	//split the array into halves
-		//first make subarrays and populate them
-		int *L_SubArray = Alloc(sizeof(int) * size_L);
-		for (L_Tracker = 0; L_Tracker < midpoint-l+1; L_Tracker++) //populate
-		{
-			L_SubArray[L_Tracker] = pData[L_Tracker];
-		}
-
-		int *R_SubArray = Alloc (sizeof(int) * size_R);
-		for (R_Tracker = 0; R_Tracker < r-midpoint; R_Tracker++) //populate
-		{
-			R_SubArray[R_Tracker] = pData[R_Tracker+midpoint+1];
-		}
-
-	//MERGE
-	// reset pos tracker variables
-	L_Tracker = 0; //left subarray tracker
-	R_Tracker = 0; //right subarray tracker
-	mainArray_Tracker = 0; //main array tracker
-
-	//then itterate arrays and merge them
-		//magnitude checked to determine position
-		//set the main array to the smaller of the values
-	while (L_Tracker < size_L && R_Tracker < size_R) // at midpoinnt: left counter end, right counter start
+	if (l<r) 
 	{
-		//if in order
-		if (L_SubArray[L_Tracker] <= R_SubArray[R_Tracker])
+		int mid = (l+r) / 2; //get mid
+
+		//recursive call
+		mergeSort(pData , l, mid); //first half
+		mergeSort(pData, mid+1, r); //second half
+
+		//SET-UP MERGE
+		//get tracker variables
+		int i, j, k; //left, right, mainArray
+		//get sizes of subarrays
+		int size_L = mid - l + 1;
+		int size_R = r-mid;
+
+		//make temp arrays
+		int *arr_L = Alloc(sizeof(int) * size_L);
+		int *arr_R = Alloc (sizeof(int) * size_R);
+
+		//copy data
+		for (i = 0; i < size_L; i++) //left
+			arr_L[i] = pData[i + l];		
+
+		for (j = 0; j < size_R; j++) //right
+			arr_R[j] = pData[mid+1+j	];
+
+		//MERGE
+		// reset pos tracker variables
+		i = 0; //left subarray tracker
+		j = 0; //right subarray tracker
+		k = 0; //main array tracker
+
+		//itterate arrays and merge them
+		//set the pData[k] to the smaller of the values
+		while (i < size_L && j < size_R)
 		{
+			//if in order
 			//set main array to left value
 			//itterate left tracker
-			pData[mainArray_Tracker] = L_SubArray[L_Tracker];
-			L_Tracker++;
-		}
-
-		//if reverse-order
-		else
-		//(L_SubArray[L_Tracker] > R_SubArray[R_Tracker]) //only other case
-		{
+			if (arr_L[i] <= arr_R[j])
+			{
+				pData[k] = arr_L[i];
+				i++;
+			}
 			//set main array to right value
 			//itterate right tracker
-			pData[mainArray_Tracker] = R_SubArray[R_Tracker];
-			R_Tracker++;
+			else //(arr_L[i] > arr_R[j]) only other case
+			{
+				pData[k] = arr_R[j];
+				j++;
+			}
+			k++;
+		}
+		//sorting done
+
+		//now handle any left over data, left then right
+		/*for (i; i < size_L; i++) //left tracker less than size of leftarray
+		{
+			pData[k] = arr_L[i];
+			k++;
 		}
 
-		//update main arrray tracker
-		mainArray_Tracker++;
-	}
-	//sorting done
+		for (j; j < size_R; j++) // right tracker less than size of right array
+		{
+			pData[k] = arr_R[j];
+			k++;
+		}*/
 
-	//now handle any left over data, left then right
-	for (L_Tracker; L_Tracker < size_L; L_Tracker++, mainArray_Tracker++) //left tracker less than size of leftarray
-	{
-		pData[mainArray_Tracker] = L_SubArray[L_Tracker];
-	}
+		while (i < size_L)
+		{
+			pData[k] = arr_L[i];
+			i++;
+			k++;
+		}
 
-	for (R_Tracker; R_Tracker < size_R; R_Tracker++, mainArray_Tracker++) // right tracker less than size of right array
-	{
-		pData[mainArray_Tracker] = R_SubArray[R_Tracker];
-	}
+		while (j < size_R)
+		{
+			pData[k] = arr_R[j];
+			j++;
+			k++;
+		}
 
-	// laslty de-allocate temporary arrays
-	DeAlloc(L_SubArray);
-	DeAlloc(R_SubArray);
+		// laslty de-allocate temporary arrays
+		DeAlloc(arr_L);
+		DeAlloc(arr_R);
+	}
 }
 
 // parses input file to an integer array
