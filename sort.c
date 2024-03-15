@@ -89,7 +89,8 @@ void mergeSort(int pData[], int l, int r)
 		}
 
 		//if reverse-order
-		else if (L_SubArray[L_Tracker] > R_SubArray[R_Tracker]) //only other case
+		else
+		//(L_SubArray[L_Tracker] > R_SubArray[R_Tracker]) //only other case
 		{
 			//set main array to right value
 			//itterate right tracker
@@ -175,7 +176,7 @@ int main(void)
     double cpu_time_used;
 	char* fileNames[] = { "input1.txt", "input2.txt", "input3.txt", "input4.txt" };
 	
-	for (i=0;i<4;++i)
+	for (i=0;i<2;++i)
 	{
 		int *pDataSrc, *pDataCopy;
 		int dataSz = parseData(fileNames[i], &pDataSrc);
